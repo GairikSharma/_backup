@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/proyash")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "${FRONTEND_URL:http://localhost:4200}")
 public class HomeController {
 
 	private final HomeService homeService;

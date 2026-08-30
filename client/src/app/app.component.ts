@@ -1,29 +1,26 @@
 import { Component } from '@angular/core';
+
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
+
 import { RouterOutlet } from '@angular/router';
 
-import {
-  ApiService,
-  Contribution
-} from './services/api.service';
+import { ApiService, Contribution } from './services/api.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    ReactiveFormsModule
-  ],
+
+  imports: [RouterOutlet, ReactiveFormsModule],
+
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
-
   title = 'client';
 
   contributionForm: FormGroup;
@@ -36,42 +33,17 @@ export class AppComponent {
 
   constructor(
     private fb: FormBuilder,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {
-
     this.contributionForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
 
-      name: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2)
-        ]
-      ],
+      email: ['', [Validators.required, Validators.email]],
 
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.email
-        ]
-      ],
+      contributedAmount: ['', [Validators.required, Validators.min(1)]],
 
-      contributedAmount: [
-        '',
-        [
-          Validators.required,
-          Validators.min(1)
-        ]
-      ],
-
-      date: [
-        '',
-        Validators.required
-      ]
-
+      date: ['', Validators.required],
     });
-
   }
 
   get f() {
@@ -79,28 +51,19 @@ export class AppComponent {
   }
 
   isInvalid(field: string): boolean {
-
     const control = this.contributionForm.get(field);
 
-    return !!(
-      control &&
-      control.invalid &&
-      (control.dirty || control.touched)
-    );
-
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
   submitForm(): void {
-
     this.submitted = true;
 
-    // Validate form
+    // Stop if form is invalid
     if (this.contributionForm.invalid) {
-
       this.contributionForm.markAllAsTouched();
 
       return;
-
     }
 
     this.isSubmitting = true;
@@ -110,62 +73,41 @@ export class AppComponent {
 
     // Prepare request payload
     const contribution: Contribution = {
-
       name: this.contributionForm.value.name,
 
       email: this.contributionForm.value.email,
 
-      contributedAmount:
-        Number(this.contributionForm.value.contributedAmount),
+      contributedAmount: Number(this.contributionForm.value.contributedAmount),
 
-      date: this.contributionForm.value.date
-
+      date: this.contributionForm.value.date,
     };
 
-    // Call backend API through global service
-    this.apiService
-      .createContribution(contribution)
-      .subscribe({
+    // Send data to Render backend
+    this.apiService.createContribution(contribution).subscribe({
+      next: (response) => {
+        console.log('Contribution created successfully:', response);
 
-        next: (response) => {
+        this.isSubmitting = false;
 
-          console.log(
-            'Contribution created successfully:',
-            response
-          );
+        this.successMessage = 'Contribution recorded successfully.';
 
-          this.isSubmitting = false;
+        this.errorMessage = '';
 
-          this.successMessage =
-            'Contribution recorded successfully.';
+        // Reset form
+        this.contributionForm.reset();
 
-          this.errorMessage = '';
+        this.submitted = false;
+      },
 
-          // Reset form
-          this.contributionForm.reset();
+      error: (error) => {
+        console.error('Error creating contribution:', error);
 
-          this.submitted = false;
+        this.isSubmitting = false;
 
-        },
+        this.errorMessage = 'Unable to record contribution. Please try again.';
 
-        error: (error) => {
-
-          console.error(
-            'Error creating contribution:',
-            error
-          );
-
-          this.isSubmitting = false;
-
-          this.errorMessage =
-            'Unable to record contribution. Please try again.';
-
-          this.successMessage = '';
-
-        }
-
-      });
-
+        this.successMessage = '';
+      },
+    });
   }
-
 }

@@ -14,7 +14,8 @@ export interface Contribution {
 })
 export class ApiService {
 
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl =
+    'https://proyash-backup-data1.onrender.com/api';
 
   constructor(private http: HttpClient) {}
 
@@ -23,10 +24,8 @@ export class ApiService {
   ): Observable<any> {
 
     return this.http.post(
-      `${this.baseUrl}/contributions`,
+      `${this.baseUrl}/save`,
       contribution
     );
-
   }
-
 }

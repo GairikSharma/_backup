@@ -32,7 +32,7 @@ export interface PaymentVerificationResponse {
 export class ApiService {
 
   private readonly baseUrl =
-    'http://localhost:8087/api';
+    'https://proyash-backup-data1.onrender.com/api';
 
   constructor(
     private http: HttpClient

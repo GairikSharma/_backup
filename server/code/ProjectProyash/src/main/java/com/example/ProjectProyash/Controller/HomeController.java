@@ -14,36 +14,26 @@ import com.example.ProjectProyash.service.HomeService;
 
 @RestController
 @RequestMapping("/api/proyash")
-@CrossOrigin(
-        origins = "http://localhost:4200",
-        allowedHeaders = "*",
-        methods = {
-                RequestMethod.GET,
-                RequestMethod.POST,
-                RequestMethod.PUT,
-                RequestMethod.DELETE,
-                RequestMethod.OPTIONS
-        }
-)
+@CrossOrigin(origins = { "http://localhost:4200", "https://proyash-version-1.netlify.app/" }, allowedHeaders = "*", methods = { RequestMethod.GET,
+		RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS })
 public class HomeController {
 
-    private final HomeService homeService;
+	private final HomeService homeService;
 
-    public HomeController(HomeService homeService) {
-        this.homeService = homeService;
-    }
+	public HomeController(HomeService homeService) {
+		this.homeService = homeService;
+	}
 
-    @GetMapping("/health")
-    public String healthCheck() {
-        return "OK";
-    }
+	@GetMapping("/health")
+	public String healthCheck() {
+		return "OK";
+	}
 
-    @PostMapping("/save")
-    public ResponseEntity<String> saveHomeDetails(
-            @RequestBody HomeDTO homeDto) {
+	@PostMapping("/save")
+	public ResponseEntity<String> saveHomeDetails(@RequestBody HomeDTO homeDto) {
 
-        homeService.saveHomeDetails(homeDto);
+		homeService.saveHomeDetails(homeDto);
 
-        return ResponseEntity.ok("Data saved successfully");
-    }
+		return ResponseEntity.ok("Data saved successfully");
+	}
 }

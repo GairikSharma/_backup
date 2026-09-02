@@ -1,6 +1,5 @@
 package com.example.ProjectProyash.service;
 
-
 import java.sql.Date;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,8 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.ProjectProyash.DTO.HomeDTO;
 import com.example.ProjectProyash.sql.HomeSql;
-
-
 
 @Service
 public class HomeService {

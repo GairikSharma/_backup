@@ -1,17 +1,15 @@
 <main class="main">
   <div class="content">
     <div class="page">
+
       <!-- Background decoration -->
       <div class="glow glow-one"></div>
       <div class="glow glow-two"></div>
 
       <main class="container">
+
         <!-- Header -->
         <section class="hero">
-          <!-- <div class="brand-mark">
-            <span class="brand-icon">✦</span>
-          </div> -->
-
           <div>
             <p class="eyebrow">CONTRIBUTION PORTAL</p>
 
@@ -21,37 +19,114 @@
             </h1>
 
             <p class="subtitle">
-              Enter the contribution details below. Your information will be
+              Enter your contribution details below. Your information will be
               securely recorded.
             </p>
           </div>
         </section>
 
+
+        <!-- SUCCESS POPUP -->
+        @if (successMessage) {
+          <div class="success-popup" role="alert">
+
+            <div class="success-icon">
+              ✓
+            </div>
+
+            <div class="success-content">
+              <strong>Success!</strong>
+
+              <p>
+                {{ successMessage }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="close-popup"
+              (click)="successMessage = ''"
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+          </div>
+        }
+
+
+        <!-- ERROR POPUP -->
+        @if (errorMessage) {
+          <div class="error-popup" role="alert">
+
+            <div class="error-icon">
+              !
+            </div>
+
+            <div class="error-content">
+              <strong>Error</strong>
+
+              <p>
+                {{ errorMessage }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="close-popup"
+              (click)="errorMessage = ''"
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+          </div>
+        }
+
+
         <!-- Form Card -->
         <section class="form-card">
+
+          <!-- Card Header -->
           <div class="card-header">
+
             <div>
               <h2>Contribution details</h2>
-              <p>All fields are required unless stated otherwise.</p>
+
+              <p>
+                All fields are required unless stated otherwise.
+              </p>
             </div>
 
             <div class="secure-badge">
               <span class="secure-dot"></span>
               Secure
             </div>
+
           </div>
 
+
+          <!-- Form -->
           <form
             [formGroup]="contributionForm"
-            (ngSubmit)="submitForm()"
             novalidate
           >
+
             <!-- Name -->
             <div class="field">
-              <label for="name"> Full name </label>
 
-              <div class="input-wrapper" [class.error]="isInvalid('name')">
-                <span class="input-icon">◯</span>
+              <label for="name">
+                Full name
+              </label>
+
+              <div
+                class="input-wrapper"
+                [class.error]="isInvalid('name')"
+              >
+
+                <span class="input-icon">
+                  ◯
+                </span>
 
                 <input
                   id="name"
@@ -60,21 +135,35 @@
                   placeholder="Enter your full name"
                   autocomplete="name"
                 />
+
               </div>
 
               @if (isInvalid("name")) {
+
                 <small class="error-message">
                   Please enter at least 2 characters.
                 </small>
+
               }
+
             </div>
+
 
             <!-- Email -->
             <div class="field">
-              <label for="email"> Email address </label>
 
-              <div class="input-wrapper" [class.error]="isInvalid('email')">
-                <span class="input-icon">&#64;</span>
+              <label for="email">
+                Email address
+              </label>
+
+              <div
+                class="input-wrapper"
+                [class.error]="isInvalid('email')"
+              >
+
+                <span class="input-icon">
+                  &#64;
+                </span>
 
                 <input
                   id="email"
@@ -83,26 +172,38 @@
                   placeholder="you@example.com"
                   autocomplete="email"
                 />
+
               </div>
 
               @if (isInvalid("email")) {
+
                 <small class="error-message">
                   Please enter a valid email address.
                 </small>
+
               }
+
             </div>
+
 
             <!-- Amount + Date -->
             <div class="two-column">
+
               <!-- Amount -->
               <div class="field">
-                <label for="amount"> Contributed amount </label>
+
+                <label for="amount">
+                  Contributed amount
+                </label>
 
                 <div
                   class="input-wrapper amount-wrapper"
                   [class.error]="isInvalid('contributedAmount')"
                 >
-                  <span class="currency">₹</span>
+
+                  <span class="currency">
+                    ₹
+                  </span>
 
                   <input
                     id="amount"
@@ -112,76 +213,214 @@
                     min="1"
                     step="0.01"
                   />
+
                 </div>
 
                 @if (isInvalid("contributedAmount")) {
+
                   <small class="error-message">
                     Enter an amount greater than ₹0.
                   </small>
+
                 }
+
               </div>
+
 
               <!-- Date -->
               <div class="field">
-                <label for="date"> Contribution date </label>
 
-                <div class="input-wrapper" [class.error]="isInvalid('date')">
-                  <span class="input-icon">▣</span>
+                <label for="date">
+                  Contribution date
+                </label>
 
-                  <input id="date" type="date" formControlName="date" />
+                <div
+                  class="input-wrapper"
+                  [class.error]="isInvalid('date')"
+                >
+
+                  <span class="input-icon">
+                    ▣
+                  </span>
+
+                  <input
+                    id="date"
+                    type="date"
+                    formControlName="date"
+                  />
+
                 </div>
 
                 @if (isInvalid("date")) {
-                  <small class="error-message"> Please select a date. </small>
+
+                  <small class="error-message">
+                    Please select a date.
+                  </small>
+
                 }
+
               </div>
+
             </div>
 
-            <!-- Success -->
-            @if (successMessage) {
-              <div class="success-message">
-                <div class="success-icon">✓</div>
+
+            <!-- Payment Information -->
+            <div class="payment-info">
+
+              <div class="payment-icon">
+                ₹
+              </div>
+
+              <div>
+
+                <strong>
+                  Pay securely using Razorpay
+                </strong>
+
+                <p>
+                  Your contribution will be recorded automatically after
+                  successful payment verification.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- Payment Processing / Success Status -->
+            @if (isPaying) {
+
+              <div class="payment-success">
+
+                <span class="spinner"></span>
 
                 <div>
-                  <strong>Success</strong>
-                  <p>{{ successMessage }}</p>
+                  <strong>
+                    Processing payment...
+                  </strong>
+
+                  <p>
+                    Please complete the payment. Do not close this page.
+                  </p>
                 </div>
+
               </div>
+
             }
 
-            <!-- Submit -->
+
+            @if (paymentCompleted) {
+
+              <div class="payment-success">
+
+                <span class="payment-success-icon">
+                  ✓
+                </span>
+
+                <div>
+                  <strong>
+                    Payment successful
+                  </strong>
+
+                  <p>
+                    Your contribution has been recorded successfully.
+                  </p>
+                </div>
+
+              </div>
+
+            }
+
+
+            <!-- Pay Now -->
             <button
-              type="submit"
-              class="submit-button"
-              [disabled]="isSubmitting"
+              type="button"
+              class="pay-button"
+              [disabled]="isPaying || isSubmitting || paymentCompleted"
+              (click)="payNow()"
             >
-              @if (!isSubmitting) {
-                <span>Record contribution</span>
-                <span class="arrow">→</span>
+
+              @if (!isPaying && !paymentCompleted) {
+
+                <span class="pay-icon">
+                  ₹
+                </span>
+
+                <span>
+                  Pay Now
+                </span>
+
+                <span class="arrow">
+                  →
+                </span>
+
               }
 
-              @if (isSubmitting) {
+
+              @if (isPaying) {
+
                 <span class="spinner"></span>
-                <span>Recording...</span>
+
+                <span>
+                  Processing...
+                </span>
+
               }
+
+
+              @if (paymentCompleted) {
+
+                <span class="pay-icon">
+                  ✓
+                </span>
+
+                <span>
+                  Payment Completed
+                </span>
+
+              }
+
             </button>
 
+
+            <!-- Privacy -->
             <div class="privacy-note">
-              <span>◆</span>
+
+              <span>
+                ◆
+              </span>
+
               Your information is handled securely and privately.
+
             </div>
+
           </form>
+
         </section>
+
 
         <!-- Footer -->
         <footer>
-          <span>Contribution Portal</span>
-          <span class="footer-dot">•</span>
-          <span>Secure submission</span>
+
+          <span>
+            Contribution Portal
+          </span>
+
+          <span class="footer-dot">
+            •
+          </span>
+
+          <span>
+            Secure submission
+          </span>
+
         </footer>
+
       </main>
+
     </div>
   </div>
 </main>
 
-<router-outlet />
+
+<router-outlet></router-outlet>

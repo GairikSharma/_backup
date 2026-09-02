@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
+  production: true,
 
   razorpayKeyId: 'rzp_test_TWQFVA9cUC4sYO'
 };

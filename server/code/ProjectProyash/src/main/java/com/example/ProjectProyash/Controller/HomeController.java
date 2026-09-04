@@ -14,8 +14,9 @@ import com.example.ProjectProyash.service.HomeService;
 
 @RestController
 @RequestMapping("/api/proyash")
-@CrossOrigin(origins = { "http://localhost:4200", "https://proyash-version-1.netlify.app/" }, allowedHeaders = "*", methods = { RequestMethod.GET,
-		RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS })
+@CrossOrigin(origins = { "http://localhost:4200",
+		"https://proyash-version-1.netlify.app/" }, allowedHeaders = "*", methods = { RequestMethod.GET,
+				RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS })
 public class HomeController {
 
 	private final HomeService homeService;
@@ -35,5 +36,10 @@ public class HomeController {
 		homeService.saveHomeDetails(homeDto);
 
 		return ResponseEntity.ok("Data saved successfully");
+	}
+
+	@GetMapping("/isAdmin")
+	public boolean checkIsAdmin(String code) {
+		return homeService.getAdminAccess(code);
 	}
 }

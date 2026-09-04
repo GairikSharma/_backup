@@ -10,7 +10,9 @@ import {
 import { RouterOutlet } from '@angular/router';
 
 import {
-  ApiService
+  ApiService,
+  ContributionRequest,
+  PaymentVerificationResponse
 } from './services/api.service';
 import { environment } from '../environments/environment';
 
@@ -40,14 +42,44 @@ export class AppComponent {
 
   paymentCompleted = false;
 
+  saveCompleted = false;
+
+  paymentDetails: {
+    name: string;
+    email: string;
+    amount: number;
+    date: string;
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+  } | null = null;
+
   successMessage = '';
 
   errorMessage = '';
+
+  adminModalOpen = false;
+
+  adminCode = '';
+
+  adminErrorMessage = '';
+
+  isAdmin = false;
+
+  isCheckingAdmin = false;
+
+  saveWithoutPayment = false;
 
   constructor(
     private fb: FormBuilder,
     private apiService: ApiService
   ) {
+
+    const currentDate = new Date();
+    const formattedDate = [
+      currentDate.getFullYear(),
+      String(currentDate.getMonth() + 1).padStart(2, '0'),
+      String(currentDate.getDate()).padStart(2, '0')
+    ].join('-');
 
     this.contributionForm =
       this.fb.group({
@@ -77,7 +109,7 @@ export class AppComponent {
         ],
 
         date: [
-          '',
+          formattedDate,
           Validators.required
         ]
 
@@ -103,6 +135,101 @@ export class AppComponent {
     );
   }
 
+  openAdminModal(): void {
+    this.adminCode = '';
+    this.errorMessage = '';
+    this.adminErrorMessage = '';
+    this.adminModalOpen = true;
+  }
+
+  closeAdminModal(): void {
+    if (!this.isCheckingAdmin) {
+      this.adminModalOpen = false;
+    }
+  }
+
+  toggleSaveWithoutPayment(enabled: boolean): void {
+    this.saveWithoutPayment = enabled;
+
+    if (!enabled) {
+      this.saveCompleted = false;
+      this.successMessage = '';
+      this.errorMessage = '';
+    }
+  }
+
+  checkAdminAccess(): void {
+    if (!this.adminCode.trim()) {
+      this.adminErrorMessage = 'Please enter the admin code.';
+      return;
+    }
+
+    this.isCheckingAdmin = true;
+    this.adminErrorMessage = '';
+
+    this.apiService.checkIsAdmin(this.adminCode.trim()).subscribe({
+      next: (isAdmin) => {
+        this.isCheckingAdmin = false;
+
+        if (isAdmin) {
+          this.isAdmin = true;
+          this.adminModalOpen = false;
+          return;
+        }
+
+        this.adminErrorMessage = 'Invalid admin code.';
+      },
+      error: () => {
+        this.isCheckingAdmin = false;
+        this.adminErrorMessage =
+          'Unable to verify admin access. Please try again.';
+      }
+    });
+  }
+
+  saveWithoutPaymentNow(): void {
+    this.submitted = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.paymentCompleted = false;
+    this.saveCompleted = false;
+    this.paymentDetails = null;
+
+    if (!this.isAdmin || !this.saveWithoutPayment) {
+      this.errorMessage = 'Admin access is required to save without payment.';
+      return;
+    }
+
+    if (this.contributionForm.invalid) {
+      this.contributionForm.markAllAsTouched();
+      return;
+    }
+
+    const contribution: ContributionRequest = {
+      name: this.contributionForm.value.name,
+      email: this.contributionForm.value.email,
+      amount: Number(this.contributionForm.value.contributedAmount),
+      date: this.contributionForm.value.date
+    };
+
+    this.isSubmitting = true;
+
+    this.apiService.saveContribution(contribution).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.saveCompleted = true;
+        this.successMessage =
+          'Your record was saved successfully without payment.';
+        this.contributionForm.reset();
+        this.submitted = false;
+      },
+      error: () => {
+        this.isSubmitting = false;
+        this.errorMessage = 'Unable to save the contribution. Please try again.';
+      }
+    });
+  }
+
   /**
    * Start Razorpay payment
    */
@@ -113,6 +240,8 @@ export class AppComponent {
     this.successMessage = '';
     this.errorMessage = '';
     this.paymentCompleted = false;
+    this.saveCompleted = false;
+    this.paymentDetails = null;
 
     /*
      * Validate form
@@ -309,6 +438,15 @@ export class AppComponent {
       .subscribe({
 
         next: (result) => {
+
+          this.paymentDetails = {
+            name: name,
+            email: email,
+            amount: amount,
+            date: date,
+            razorpayOrderId: result.razorpayOrderId,
+            razorpayPaymentId: result.razorpayPaymentId
+          };
 
           console.log(
             'Payment verified and contribution saved:',

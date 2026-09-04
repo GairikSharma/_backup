@@ -1,12 +1,14 @@
 <main class="main">
   <div class="content">
     <div class="page">
-
       <!-- Background decoration -->
       <div class="glow glow-one"></div>
       <div class="glow glow-two"></div>
 
       <main class="container">
+        <button type="button" class="admin-link mt-3" (click)="openAdminModal()">
+          Admin
+        </button>
 
         <!-- Header -->
         <section class="hero">
@@ -25,17 +27,72 @@
           </div>
         </section>
 
+        @if (adminModalOpen) {
+          <div class="admin-modal-backdrop" (click)="closeAdminModal()">
+            <section
+              class="admin-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="admin-title"
+              (click)="$event.stopPropagation()"
+            >
+              <button
+                type="button"
+                class="close-popup admin-close"
+                (click)="closeAdminModal()"
+                aria-label="Close admin access dialog"
+              >
+                ×
+              </button>
+
+              <h2 id="admin-title">Admin access</h2>
+              <p>Enter the admin code to enable saving without payment.</p>
+
+              <label for="admin-code">Admin code</label>
+              <input
+                id="admin-code"
+                type="text"
+                [value]="adminCode"
+                (input)="adminCode = $any($event.target).value"
+                (keyup.enter)="checkAdminAccess()"
+                autocomplete="off"
+              />
+
+              @if (adminErrorMessage) {
+                <small class="admin-error-message" role="alert">
+                  {{ adminErrorMessage }}
+                </small>
+              }
+
+              <button
+                type="button"
+                class="save-button admin-submit"
+                [disabled]="isCheckingAdmin"
+                (click)="checkAdminAccess()"
+              >
+                @if (isCheckingAdmin) {
+                  <span class="spinner"></span>
+                } @else {
+                  Verify code
+                }
+              </button>
+            </section>
+          </div>
+        }
 
         <!-- SUCCESS POPUP -->
         @if (successMessage) {
           <div class="success-popup" role="alert">
-
-            <div class="success-icon">
-              ✓
-            </div>
+            <div class="success-icon">✓</div>
 
             <div class="success-content">
-              <strong>Success!</strong>
+              <strong>
+                @if (saveCompleted) {
+                  Record saved
+                } @else {
+                  Payment successful
+                }
+              </strong>
 
               <p>
                 {{ successMessage }}
@@ -50,18 +107,13 @@
             >
               ×
             </button>
-
           </div>
         }
-
 
         <!-- ERROR POPUP -->
         @if (errorMessage) {
           <div class="error-popup" role="alert">
-
-            <div class="error-icon">
-              !
-            </div>
+            <div class="error-icon">!</div>
 
             <div class="error-content">
               <strong>Error</strong>
@@ -79,54 +131,33 @@
             >
               ×
             </button>
-
           </div>
         }
 
-
         <!-- Form Card -->
         <section class="form-card">
-
           <!-- Card Header -->
           <div class="card-header">
-
             <div>
               <h2>Contribution details</h2>
 
-              <p>
-                All fields are required unless stated otherwise.
-              </p>
+              <p>All fields are required unless stated otherwise.</p>
             </div>
 
             <div class="secure-badge">
               <span class="secure-dot"></span>
               Secure
             </div>
-
           </div>
 
-
           <!-- Form -->
-          <form
-            [formGroup]="contributionForm"
-            novalidate
-          >
-
+          <form [formGroup]="contributionForm" novalidate>
             <!-- Name -->
             <div class="field">
+              <label for="name"> Full name </label>
 
-              <label for="name">
-                Full name
-              </label>
-
-              <div
-                class="input-wrapper"
-                [class.error]="isInvalid('name')"
-              >
-
-                <span class="input-icon">
-                  ◯
-                </span>
+              <div class="input-wrapper" [class.error]="isInvalid('name')">
+                <span class="input-icon"> ◯ </span>
 
                 <input
                   id="name"
@@ -135,35 +166,21 @@
                   placeholder="Enter your full name"
                   autocomplete="name"
                 />
-
               </div>
 
               @if (isInvalid("name")) {
-
                 <small class="error-message">
                   Please enter at least 2 characters.
                 </small>
-
               }
-
             </div>
-
 
             <!-- Email -->
             <div class="field">
+              <label for="email"> Email address </label>
 
-              <label for="email">
-                Email address
-              </label>
-
-              <div
-                class="input-wrapper"
-                [class.error]="isInvalid('email')"
-              >
-
-                <span class="input-icon">
-                  &#64;
-                </span>
+              <div class="input-wrapper" [class.error]="isInvalid('email')">
+                <span class="input-icon"> &#64; </span>
 
                 <input
                   id="email"
@@ -172,38 +189,26 @@
                   placeholder="you@example.com"
                   autocomplete="email"
                 />
-
               </div>
 
               @if (isInvalid("email")) {
-
                 <small class="error-message">
                   Please enter a valid email address.
                 </small>
-
               }
-
             </div>
-
 
             <!-- Amount + Date -->
             <div class="two-column">
-
               <!-- Amount -->
               <div class="field">
-
-                <label for="amount">
-                  Contributed amount
-                </label>
+                <label for="amount"> Contributed amount </label>
 
                 <div
                   class="input-wrapper amount-wrapper"
                   [class.error]="isInvalid('contributedAmount')"
                 >
-
-                  <span class="currency">
-                    ₹
-                  </span>
+                  <span class="currency"> ₹ </span>
 
                   <input
                     id="amount"
@@ -213,214 +218,199 @@
                     min="1"
                     step="0.01"
                   />
-
                 </div>
 
                 @if (isInvalid("contributedAmount")) {
-
                   <small class="error-message">
                     Enter an amount greater than ₹0.
                   </small>
-
                 }
-
               </div>
-
 
               <!-- Date -->
               <div class="field">
+                <label for="date"> Contribution date </label>
 
-                <label for="date">
-                  Contribution date
-                </label>
+                <div class="input-wrapper" [class.error]="isInvalid('date')">
+                  <span class="input-icon"> ▣ </span>
 
-                <div
-                  class="input-wrapper"
-                  [class.error]="isInvalid('date')"
-                >
-
-                  <span class="input-icon">
-                    ▣
-                  </span>
-
-                  <input
-                    id="date"
-                    type="date"
-                    formControlName="date"
-                  />
-
+                  <input id="date" type="date" formControlName="date" />
                 </div>
 
                 @if (isInvalid("date")) {
-
-                  <small class="error-message">
-                    Please select a date.
-                  </small>
-
+                  <small class="error-message"> Please select a date. </small>
                 }
-
               </div>
-
             </div>
-
 
             <!-- Payment Information -->
             <div class="payment-info">
-
-              <div class="payment-icon">
-                ₹
-              </div>
+              <div class="payment-icon">₹</div>
 
               <div>
-
-                <strong>
-                  Pay securely using Razorpay
-                </strong>
+                <strong> Pay securely using Razorpay </strong>
 
                 <p>
                   Your contribution will be recorded automatically after
                   successful payment verification.
                 </p>
-
               </div>
-
             </div>
 
-
-            <!-- Payment Processing / Success Status -->
-            @if (isPaying) {
-
-              <div class="payment-success">
-
-                <span class="spinner"></span>
-
-                <div>
-                  <strong>
-                    Processing payment...
-                  </strong>
-
-                  <p>
-                    Please complete the payment. Do not close this page.
-                  </p>
-                </div>
-
-              </div>
-
+            @if (isAdmin) {
+              <label class="save-switch">
+                <span>
+                  <strong
+                    >Would you like to save your record without pay?</strong
+                  >
+                  <small>Admin access is enabled for this form.</small>
+                </span>
+                <input
+                  type="checkbox"
+                  [checked]="saveWithoutPayment"
+                  (change)="
+                    toggleSaveWithoutPayment($any($event.target).checked)
+                  "
+                />
+                <span class="switch-track"></span>
+              </label>
             }
-
 
             @if (paymentCompleted) {
-
               <div class="payment-success">
+                <div class="payment-success-header">
+                  <div class="payment-success-icon">✓</div>
 
-                <span class="payment-success-icon">
-                  ✓
-                </span>
-
-                <div>
-                  <strong>
-                    Payment successful
-                  </strong>
-
-                  <p>
-                    Your contribution has been recorded successfully.
-                  </p>
+                  <div>
+                    <span class="payment-receipt-label">Payment receipt</span>
+                    <strong>Payment successful</strong>
+                    <p>Your contribution has been recorded successfully.</p>
+                  </div>
                 </div>
 
-              </div>
+                @if (paymentDetails) {
+                  <div class="payment-details">
+                    <div class="payment-detail-item payment-detail-amount">
+                      <span>Amount contributed</span>
+                      <strong>₹{{ paymentDetails.amount }}</strong>
+                    </div>
 
+                    <div class="payment-detail-item">
+                      <span>Name</span>
+                      <strong>{{ paymentDetails.name }}</strong>
+                    </div>
+
+                    <div class="payment-detail-item">
+                      <span>Email</span>
+                      <strong>{{ paymentDetails.email }}</strong>
+                    </div>
+
+                    <div class="payment-detail-item">
+                      <span>Date</span>
+                      <strong>{{ paymentDetails.date }}</strong>
+                    </div>
+
+                    <div class="payment-detail-item payment-detail-id">
+                      <span>Payment ID</span>
+                      <strong>{{ paymentDetails.razorpayPaymentId }}</strong>
+                    </div>
+
+                    <div class="payment-detail-item payment-detail-id">
+                      <span>Order ID</span>
+                      <strong>{{ paymentDetails.razorpayOrderId }}</strong>
+                    </div>
+                  </div>
+                }
+              </div>
             }
 
+            @if (saveCompleted) {
+              <div class="save-success" role="status">
+                <div class="save-success-icon">✓</div>
+
+                <div>
+                  <span class="payment-receipt-label">Record saved</span>
+                  <strong>Your contribution was saved successfully.</strong>
+                  <p>No payment was required for this admin submission.</p>
+                </div>
+              </div>
+            }
 
             <!-- Pay Now -->
             <button
               type="button"
               class="pay-button"
-              [disabled]="isPaying || isSubmitting || paymentCompleted"
+              [disabled]="
+                saveWithoutPayment ||
+                isPaying ||
+                isSubmitting ||
+                paymentCompleted ||
+                saveCompleted
+              "
               (click)="payNow()"
             >
+              @if (!isPaying && !paymentCompleted && !saveCompleted) {
+                <span class="pay-icon"> ₹ </span>
 
-              @if (!isPaying && !paymentCompleted) {
+                <span> Pay Now </span>
 
-                <span class="pay-icon">
-                  ₹
-                </span>
-
-                <span>
-                  Pay Now
-                </span>
-
-                <span class="arrow">
-                  →
-                </span>
-
+                <span class="arrow"> → </span>
               }
-
 
               @if (isPaying) {
-
                 <span class="spinner"></span>
-
-                <span>
-                  Processing...
-                </span>
-
               }
-
 
               @if (paymentCompleted) {
+                <span class="pay-icon"> ✓ </span>
 
-                <span class="pay-icon">
-                  ✓
-                </span>
-
-                <span>
-                  Payment Completed
-                </span>
-
+                <span> Payment Completed </span>
               }
 
+              @if (saveCompleted) {
+                <span class="pay-icon"> ✓ </span>
+
+                <span> Payment Not Required </span>
+              }
             </button>
 
+            @if (isAdmin && saveWithoutPayment) {
+              <button
+                type="button"
+                class="save-button"
+                [disabled]="isSubmitting || saveCompleted"
+                (click)="saveWithoutPaymentNow()"
+              >
+                @if (isSubmitting) {
+                  <span class="spinner"></span>
+                } @else {
+                  <span class="pay-icon">✓</span>
+                  <span>Save Record</span>
+                  <span class="arrow">→</span>
+                }
+              </button>
+            }
 
             <!-- Privacy -->
             <div class="privacy-note">
-
-              <span>
-                ◆
-              </span>
+              <span> ◆ </span>
 
               Your information is handled securely and privately.
-
             </div>
-
           </form>
-
         </section>
-
 
         <!-- Footer -->
         <footer>
+          <span> Contribution Portal </span>
 
-          <span>
-            Contribution Portal
-          </span>
+          <span class="footer-dot"> • </span>
 
-          <span class="footer-dot">
-            •
-          </span>
-
-          <span>
-            Secure submission
-          </span>
-
+          <span> Secure submission </span>
         </footer>
-
       </main>
-
     </div>
   </div>
 </main>
-
 
 <router-outlet></router-outlet>

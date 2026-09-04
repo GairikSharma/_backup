@@ -26,12 +26,20 @@ export interface PaymentVerificationResponse {
   razorpayPaymentId: string;
 }
 
+export interface ContributionRequest {
+  name: string;
+  email: string;
+  amount: number;
+  date: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
 
   private readonly baseUrl =
+    // 'https://proyash-backup-data1.onrender.com/api';
     'http://localhost:8087/api';
 
   constructor(
@@ -63,6 +71,30 @@ export class ApiService {
     return this.http.post<PaymentVerificationResponse>(
       `${this.baseUrl}/payment/verify`,
       payment
+    );
+  }
+
+  saveContribution(
+    contribution: ContributionRequest
+  ): Observable<string> {
+
+    return this.http.post(
+      `${this.baseUrl}/proyash/save`,
+      contribution,
+      {
+        responseType: 'text'
+      }
+    );
+  }
+
+  checkIsAdmin(code: string): Observable<boolean> {
+    return this.http.get<boolean>(
+      `${this.baseUrl}/proyash/isAdmin`,
+      {
+        params: {
+          code: code
+        }
+      }
     );
   }
 }
